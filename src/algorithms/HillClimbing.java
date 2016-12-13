@@ -12,18 +12,21 @@ public class HillClimbing {
     private static final int SIMPLE_HILL_CLIMBING = 1;
     private static final int RANDOM_HILL_CLIMBING = 2;
     private static final int FIRST_BEST_HILL_CLIMBING = 3;
+    private static final int SIMULATED_ANNEALING = 4;
 
-    ArrayList<String> paths = new ArrayList<>();
-    ArrayList<String> views = new ArrayList<>();
+    private ArrayList<String> paths = new ArrayList<>();
+    private ArrayList<String> views = new ArrayList<>();
 
+    private int t = 10;
+    private int T = 1;
 
-    int viewedNodes = 0;
-    int openedNodes = 0;
+    private int viewedNodes = 0;
+    private int openedNodes = 0;
 
-    public HillClimbing() {
+    private HillClimbing() {
 
         EightQueens e = new EightQueens("11111111");
-        climb(e, SIMPLE_HILL_CLIMBING,true);
+        climb(e, SIMULATED_ANNEALING, true);
 
     }
 
@@ -46,7 +49,7 @@ public class HillClimbing {
             int selected = 1;
             for (int c = 0; c < 8; c++) {
                 viewedNodes++;
-                if (utilitys.get(c) <= min ) {
+                if (utilitys.get(c) <= min) {
                     min = utilitys.get(c);
                     selected = c;
                 }
@@ -87,31 +90,68 @@ public class HillClimbing {
                     }
                 }
             }
+        } else if (type == SIMULATED_ANNEALING) {
+
+            boolean flag = true;
+            while(flag){
+                schedule();
+                int random = randInt(0, 7);
+                int current = e.test(e.getCurrentState());
+                int next = e.test(states.get(random));
+                int E = current - next;
+                viewedNodes++;
+                if(E >= 0)
+                   {
+                    String _selected = states.get(random);
+                    System.out.println(_selected);
+                    e.changeState(_selected);
+                       flag = false;
+                  }
+                else if(T < 100)
+                {
+                    double prandom = (double)((double)randInt(0,200)/100.0);
+                    double p = ((double)((double)Math.abs(E)/(double)T));
+                    double ep =  (double) Math.pow(2.71828182846,p);
+                    if(prandom < ep){
+                        String _selected = states.get(random);
+                        System.out.println(_selected + "-" + prandom);
+                        e.changeState(_selected);
+                        flag = false;
+                    }
+                }
+
+            }
+
         }
 
         if (e.isGoal()) {
-            if(!paths.contains(e.getCurrentState())) {
+            if (!paths.contains(e.getCurrentState())) {
                 paths.add(e.getCurrentState());
                 views.add(" view:" + viewedNodes + " open:" + openedNodes);
             }
 
-            if(randomStart){
-                String randomState = Integer.toString(randInt(1,8));
-                for(int c = 0 ;c<7;c++)
-                    randomState += Integer.toString(randInt(1,8));
+            if (randomStart) {
+                String randomState = Integer.toString(randInt(1, 8));
+                for (int c = 0; c < 7; c++)
+                    randomState += Integer.toString(randInt(1, 8));
                 e.changeState(randomState);
             }
 
         }
-        if (viewedNodes < 1000)
-            climb(e, type,randomStart);
+        if (viewedNodes < 1000 )
+            climb(e, type, randomStart);
         else
-            for(String path : paths)
-            System.out.println("paths:" +path+" "+   views.get(paths.indexOf(path)));
+            for (String path : paths)
+                System.out.println("paths:" + path + " " + views.get(paths.indexOf(path)));
+    }
+
+    private void schedule() {
+        int t = 1;
+        T += t;
     }
 
 
-    public static int randInt(int min, int max) {
+    private static int randInt(int min, int max) {
 
         // NOTE: This will (intentionally) not run as written so that folks
         // copy-pasting have to think about how to initialize their
@@ -123,9 +163,8 @@ public class HillClimbing {
 
         // nextInt is normally exclusive of the top value,
         // so add 1 to make it inclusive
-        int randomNum = rand.nextInt((max - min) + 1) + min;
 
-        return randomNum;
+        return rand.nextInt((max - min) + 1) + min;
     }
 
     public static void main(String args[]) {
