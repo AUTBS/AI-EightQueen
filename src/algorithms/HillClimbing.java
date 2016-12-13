@@ -1,6 +1,7 @@
 package algorithms;
 
 import problems.EightQueens;
+import problems.Problem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,12 +26,12 @@ public class HillClimbing {
 
     private HillClimbing() {
 
-        EightQueens e = new EightQueens("11111111");
+        Problem e = new EightQueens("11111111");
         climb(e, SIMULATED_ANNEALING, true);
 
     }
 
-    private void climb(EightQueens e, int type, boolean randomStart) {
+    private void climb(Problem e, int type, boolean randomStart) {
 
 
         List<String> states = e.getPossibleStates();
@@ -93,26 +94,23 @@ public class HillClimbing {
         } else if (type == SIMULATED_ANNEALING) {
 
             boolean flag = true;
-            while(flag){
+            while (flag) {
                 schedule();
                 int random = randInt(0, 7);
                 int current = e.test(e.getCurrentState());
                 int next = e.test(states.get(random));
                 int E = current - next;
                 viewedNodes++;
-                if(E >= 0)
-                   {
+                if (E >= 0) {
                     String _selected = states.get(random);
                     System.out.println(_selected);
                     e.changeState(_selected);
-                       flag = false;
-                  }
-                else if(T < 100)
-                {
-                    double prandom = (double)((double)randInt(0,200)/100.0);
-                    double p = ((double)((double)Math.abs(E)/(double)T));
-                    double ep =  (double) Math.pow(2.71828182846,p);
-                    if(prandom < ep){
+                    flag = false;
+                } else if (T < 100) {
+                    double prandom = (double) ((double) randInt(0, 200) / 100.0);
+                    double p = ((double) ((double) Math.abs(E) / (double) T));
+                    double ep = (double) Math.pow(2.71828182846, p);
+                    if (prandom < ep) {
                         String _selected = states.get(random);
                         System.out.println(_selected + "-" + prandom);
                         e.changeState(_selected);
@@ -138,7 +136,7 @@ public class HillClimbing {
             }
 
         }
-        if (viewedNodes < 1000 )
+        if (viewedNodes < 1000)
             climb(e, type, randomStart);
         else
             for (String path : paths)

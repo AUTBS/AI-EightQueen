@@ -3,7 +3,7 @@ package problems;
 import java.util.ArrayList;
 import java.util.List;
 
-class Problem {
+public class Problem {
 
     String currentState;
 
